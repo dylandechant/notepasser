@@ -6,9 +6,6 @@ require "pry"
 Camping.goes :Notepasser
 
 module Notepasser
-
-
-
 end
 
 module Notepasser::Models
@@ -26,14 +23,7 @@ module Notepasser::Models
     end
 end
 
-
-
-
 module Notepasser::Controllers
-
-  #hmmmm, how should this work based on a post id or a user
-  # => user regex: ([^/]+)
-  # => id regex: (\d+)
 
   class Intro < R '/'
     def get
@@ -50,13 +40,11 @@ module Notepasser::Controllers
   end
 
   def blocked?(sender, recipient_id)
-    binding.pry
-    if sender == nil
+    if sender == nil  #the sender hasn't been blocked at all
       return false
     end
     blocks = Notepasser::Models::Block.all
     blocks.each do |x|
-      binding.pry
       if sender.blocked == x.blocked_by
         return true
         break
@@ -65,8 +53,6 @@ module Notepasser::Controllers
   end
 
   class UserController < R '/user'
-
-    # CREATE A NEW USER
     def post
       @input.symbolize_keys!
       new_user = User.new
@@ -79,16 +65,13 @@ module Notepasser::Controllers
        :code => 201}
     end
 
-    # GET ALL USERS
     def get
       all_users = {}
       all_users = User.all.to_json
       "#{all_users}"
     end
-
   end
 
-  #Individual Users
   class UsersController < R '/user/(\d+)'
 
     def get(id)
@@ -98,7 +81,6 @@ module Notepasser::Controllers
     end
 
     def delete(id)
-      binding.pry # if record doesn't exist you get this: ActiveRecord::RecordNotFound
       begin
         delete = User.destroy(id)
         "User #{id} deleted"
@@ -196,7 +178,6 @@ module Notepasser::Controllers
          :code => 401}.to_json
       end
     end
-  
   end
 end
 
