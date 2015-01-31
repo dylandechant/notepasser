@@ -124,7 +124,7 @@ module Notepasser::Controllers
           "Created "
         else
           @status = 403
-          {:message => "You are blocked by the sender",
+          {:message => "You are blocked by the recipient",
             :code => 403}.to_json
         end
       else
@@ -180,6 +180,23 @@ module Notepasser::Controllers
           :code => 401}.to_json
       end
     end
+  end
+  
+  class TrackMessages < R '/messages/sent_by/(\d+)'
+    
+    def get(id)
+      binding.pry
+      @input.symbolize_keys!
+      if authenticate(User.where(id: id).take, @input[:password])
+        mess = Message.where(sender_id: id)
+        mess.to_json
+      else
+        @status = 401
+        {:message => "Incorrect Password",
+         :code => 401}.to_json
+      end
+    end
+  
   end
 end
 

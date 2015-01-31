@@ -105,6 +105,16 @@ class Notepassr
     binding.pry
     gets
   end
+
+  def get_sent_by_messages
+    print "What is your user id: "
+    users_id = gets.chomp.to_i
+    print "What is your password: "
+    password = gets.chomp
+    options = {:users_id => users_id, :password => password}
+    resp = self.class.get("/messages/sent_by/#{users_id}", :body => options)
+    binding.pry
+  end
 end
 
 exit = 0
@@ -121,6 +131,7 @@ while exit != 99
   puts "6) Get all messages"
   puts "7) Get a users messages"
   puts "8) Block a user"
+  puts "9) Get all messages by user"
   puts "99) Exit"
   exit = gets.chomp.to_i
   case exit
@@ -140,5 +151,7 @@ while exit != 99
     client.get_users_messages
   when 8
     client.block_user
+  when 9
+    client.get_sent_by_messages
   end
 end
