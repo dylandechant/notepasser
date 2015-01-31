@@ -49,6 +49,21 @@ module Notepasser::Controllers
     end
   end
 
+  def blocked?(sender, recipient_id)
+    binding.pry
+    if sender == nil
+      return false
+    end
+    blocks = Notepasser::Models::Block.all
+    blocks.each do |x|
+      binding.pry
+      if sender.blocked == x.blocked_by
+        return true
+        break
+      end
+    end
+  end
+
   class UserController < R '/user'
 
     # CREATE A NEW USER
@@ -98,13 +113,20 @@ module Notepasser::Controllers
     def post
       @input.symbolize_keys!
       if authenticate(User.where(id: @input[:sender_id]).take, @input[:password])  #AUTHENTICATE PASSWORD
-        new_message = Message.new
-        [:recipient_id, :title, :content, :sender_id].each do |x|
-          new_message[x] = @input[x]
+        binding.pry
+        if !blocked?(Block.where(blocked: @input[:sender_id]).take, @input[:recipient_id]) #IS THE USER BLOCKED?
+          new_message = Message.new
+          [:recipient_id, :title, :content, :sender_id].each do |x|
+            new_message[x] = @input[x]
+          end
+          new_message.save
+          @status = 201
+          "Created "
+        else
+          @status = 403
+          {:message => "You are blocked by the sender",
+            :code => 403}.to_json
         end
-        new_message.save
-        @status = 201
-        "Created "
       else
         @status = 401
         {:message => "Incorrect password",
@@ -138,4 +160,35 @@ module Notepasser::Controllers
       end
     end
   end
+
+  class BlockUsers < R '/block/(\d+)'
+    
+    def post(id)
+      @input.symbolize_keys!
+      binding.pry
+      if authenticate(User.where(id: @input[:users_id]).take, @input[:password])
+        new_block = Block.create
+        new_block[:blocked_by] = @input[:users_id]
+        new_block[:blocked] = id
+        new_block.save
+        @status = 201
+        {:message => "User blocked",
+          :code => 201}.to_json
+      else
+        @status = 401
+        {:message => "Incorrect Password",
+          :code => 401}.to_json
+      end
+    end
+  end
 end
+
+
+
+
+
+
+
+
+
+

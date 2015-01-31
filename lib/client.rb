@@ -92,6 +92,19 @@ class Notepassr
     puts messages
     gets
   end
+
+  def block_user
+    print "What is your user id: "
+    users_id = gets.chomp.to_i
+    print "What is your password: "
+    password = gets.chomp
+    print "Who are you blocking: "
+    blocked_user = gets.chomp.to_i
+    options = {:users_id => users_id, :password => password, :blocked => blocked_user}
+    resp = self.class.post("/block/#{blocked_user}", :body => options)
+    binding.pry
+    gets
+  end
 end
 
 exit = 0
@@ -107,6 +120,7 @@ while exit != 99
   puts "5) Delete a user"
   puts "6) Get all messages"
   puts "7) Get a users messages"
+  puts "8) Block a user"
   puts "99) Exit"
   exit = gets.chomp.to_i
   case exit
@@ -124,5 +138,7 @@ while exit != 99
     client.get_all_messages
   when 7
     client.get_users_messages
+  when 8
+    client.block_user
   end
 end
