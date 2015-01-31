@@ -3,11 +3,11 @@ class CreateMessages < ActiveRecord::Migration
     create_table :messages do |t|
       t.string :title
       t.string :content
-      t.integer :message_id,          uniqueness: true
       t.integer :recipient_id
       t.integer :sender_id
+      t.boolean :read,                default: false
 
-      t.timestamps            null: true
+      t.timestamps                    null: true
     end
   end
 

@@ -80,6 +80,20 @@ class Notepassr
     gets
   end
 
+  def get_users_messages
+    print "What is your user id: "
+    uid = gets.chomp.to_i
+    print "What is your password: "
+    password = gets.chomp
+    options = {:password => password, :users_id => uid}
+    resp = self.class.get("/message/#{uid}", :body => options)
+    binding.pry
+    messages = JSON.parse(resp)
+    puts messages
+    gets
+  end
+end
+
 exit = 0
 system 'clear'
 puts "Notepassr Client"
@@ -92,6 +106,7 @@ while exit != 99
   puts "4) Get all users"
   puts "5) Delete a user"
   puts "6) Get all messages"
+  puts "7) Get a users messages"
   puts "99) Exit"
   exit = gets.chomp.to_i
   case exit
@@ -107,6 +122,7 @@ while exit != 99
     client.delete_user
   when 6
     client.get_all_messages
+  when 7
+    client.get_users_messages
   end
-end
 end

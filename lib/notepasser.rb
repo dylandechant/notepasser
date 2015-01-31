@@ -20,6 +20,10 @@ module Notepasser::Models
     class Message < ActiveRecord::Base
       belongs_to :users
     end
+
+    class Block < ActiveRecord::Base
+      has_many :users
+    end
 end
 
 
@@ -34,6 +38,14 @@ module Notepasser::Controllers
   class Intro < R '/'
     def get
       "<html><head><title>welcome to terrible messages</title></head><body><h1>Welcome</h1></body>"
+    end
+  end
+
+  def authenticate(user, sent_password)
+    if user[:password] == sent_password
+      return true
+    else
+      return false
     end
   end
 
@@ -85,16 +97,14 @@ module Notepasser::Controllers
 
     def post
       @input.symbolize_keys!
-      t = User.where(id: @input[:sender_id]).take
-      pass = t[:password]
-      if pass == @input[:password]  #AUTHENTICATE PASSWORD
+      if authenticate(User.where(id: @input[:sender_id]).take, @input[:password])  #AUTHENTICATE PASSWORD
         new_message = Message.new
         [:recipient_id, :title, :content, :sender_id].each do |x|
           new_message[x] = @input[x]
         end
         new_message.save
         @status = 201
-        "message sent"
+        "Created "
       else
         @status = 401
         {:message => "Incorrect password",
@@ -112,13 +122,20 @@ module Notepasser::Controllers
 
   class IndividualMessage < R '/message/(\d+)'
     def get(user_id)
-      message = Message.where(recipient_id: user_id)
-      message.each do |x|
-        x.update(read: true)
-        x.save
+      # binding.pry
+      @input.symbolize_keys!
+      if authenticate(User.where(id: user_id).take, @input[:password])
+        message = Message.where(recipient_id: user_id)
+        message.each do |x|
+          x.update(read: true)
+          x.save
+        end
+        "#{message.to_json}"
+      else
+          @status = 401
+          {:message => "Incorrect password",
+          :code => 401}.to_json
       end
-      "#{message.to_json}"
     end
   end
-
 end
