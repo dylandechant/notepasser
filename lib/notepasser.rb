@@ -11,10 +11,15 @@ end
 module Notepasser::Models
 
     class User < ActiveRecord::Base
+      validates :name, length: { minimum: 3 }
       has_many :messages
     end
 
     class Message < ActiveRecord::Base
+      validates :title, presence: true
+      validates :content, presence: true, length: { minimum: 4 }
+      validates :recipient_id, presence: true
+      validates :sender_id, presence: true
       belongs_to :users
     end
 
@@ -95,7 +100,6 @@ module Notepasser::Controllers
     def post
       @input.symbolize_keys!
       if authenticate(User.where(id: @input[:sender_id]).take, @input[:password])  #AUTHENTICATE PASSWORD
-        binding.pry
         if !blocked?(Block.where(blocked: @input[:sender_id]).take, @input[:recipient_id]) #IS THE USER BLOCKED?
           new_message = Message.new
           [:recipient_id, :title, :content, :sender_id].each do |x|
@@ -115,7 +119,6 @@ module Notepasser::Controllers
           :code => 401}
           "Incorrect Password"
       end
-      # binding.pry
     end
 
     def get
@@ -126,7 +129,6 @@ module Notepasser::Controllers
 
   class IndividualMessage < R '/message/(\d+)'
     def get(user_id)
-      # binding.pry
       @input.symbolize_keys!
       if authenticate(User.where(id: user_id).take, @input[:password])
         message = Message.where(recipient_id: user_id)
@@ -146,8 +148,7 @@ module Notepasser::Controllers
   class BlockUsers < R '/block/(\d+)'
     
     def post(id)
-      @input.symbolize_keys!
-      binding.pry
+      @input.symbolize_keys
       if authenticate(User.where(id: @input[:users_id]).take, @input[:password])
         new_block = Block.create
         new_block[:blocked_by] = @input[:users_id]
@@ -166,8 +167,7 @@ module Notepasser::Controllers
   
   class TrackMessages < R '/messages/sent_by/(\d+)'
     
-    def get(id)
-      binding.pry
+    def get(id
       @input.symbolize_keys!
       if authenticate(User.where(id: id).take, @input[:password])
         mess = Message.where(sender_id: id)
@@ -176,6 +176,22 @@ module Notepasser::Controllers
         @status = 401
         {:message => "Incorrect Password",
          :code => 401}.to_json
+      end
+    end
+  end
+
+  class MarkRead < R '/messages/(\d+)/read'
+    
+    def get(message_id)
+      if authenticate(User.where(id: @input[:users_id]).take, @input[:password])
+        message = Message.where(id: message_id)
+        message.update(read: true)
+        message.save
+        "#{message.to_json}"
+      else
+        @status = 401
+        {:message => "Incorrect Password",
+          :code => 401}.to_json
       end
     end
   end
