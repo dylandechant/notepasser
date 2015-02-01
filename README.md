@@ -13,3 +13,67 @@ The description should include the HTTP method to use,
 the route, and any parameters and what they do.
 
 ## API Calls
+
+### Users
+
+####Create new user:
+
+`POST /user`
+
+:name - string - the username or name of the user 
+
+:password - string - user password    
+
+
+####Get all users
+`GET /user`
+
+####Get single user
+`GET /user/:id`
+
+####Delete a user
+`DELETE /user/:id`
+
+:id - integer - users unique identifier
+
+:password - string - cleartext password of the user
+
+### Messages
+####Send a message
+
+`POST /messages`
+
+:recipient_id - integer - id of user who is to receive
+
+:sender_id - integer - id of the user sending
+
+:password - string - cleartext password of sending user
+
+:title - string - title of the message
+
+:content - string - body of the message
+
+####Get a user's messages
+`GET /messages/:users_id`
+
+:users_id - integer - the users id
+
+:password - string - cleartext password of the user
+
+####See a users sent messages
+`GET /messages/sent_by/:users_id`
+
+:users_id - integer - the users id
+
+:password - string - cleartext password of the user
+
+###Blocking users
+###Block a user
+
+`POST /block/:blocked`
+
+:users_id - integer - the user who is blocking's id
+
+:password - string - cleartext password of the user
+
+:blocked - integer - the unique id of the person whom you are blocking
