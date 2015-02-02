@@ -167,7 +167,7 @@ module Notepasser::Controllers
   
   class TrackMessages < R '/messages/sent_by/(\d+)'
     
-    def get(id
+    def get(id)
       @input.symbolize_keys!
       if authenticate(User.where(id: id).take, @input[:password])
         mess = Message.where(sender_id: id)
