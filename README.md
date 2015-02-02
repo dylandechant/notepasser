@@ -67,8 +67,17 @@ the route, and any parameters and what they do.
 
 :password - string - cleartext password of the user
 
-###Blocking users
-###Block a user
+####Mark a message as read
+`GET /messages/:message_id/read`
+
+:users_id - integer - users unique id
+
+:password - string - cleartext password of the user
+
+:message_id - integer - unique number identifying the message
+
+### Blocking users
+####Block a user
 
 `POST /block/:blocked`
 
